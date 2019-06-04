@@ -1,0 +1,19 @@
+{
+  "$id": "reference.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Worker",
+  "type": "object",
+  "required": ["job", "firstName"],
+  "allOf": [
+    {
+      "$ref": "basic.json"
+    },
+    {
+      "properties": {
+        "job": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

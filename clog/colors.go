@@ -6,12 +6,14 @@ import (
 	"strconv"
 )
 
-var error = color.New(color.FgRed).PrintfFunc()
-var success = color.New(color.FgGreen).PrintfFunc()
-var info = color.New(color.FgCyan).PrintfFunc()
-var debug = color.New().PrintfFunc()
+var red = color.New(color.FgRed).SprintfFunc()
+var green = color.New(color.FgGreen).SprintfFunc()
+var cyan = color.New(color.FgCyan).SprintfFunc()
+var white = color.New(color.FgHiWhite).SprintfFunc()
 
 var logger = initLogger()
+
+// ErrorCounter counter for errors
 var errorCounter = 0
 
 func initLogger() *log.Logger {
@@ -25,25 +27,25 @@ func initLogger() *log.Logger {
 
 // Success print success msg
 func Success(format string, a ...interface{}) {
-	//logrus.Debug()
-	//success(format+"\n", a...)
-	f := color.New(color.FgGreen).SprintfFunc()
-	logger.Debug(f(format, a...))
+	logger.Debug(green(format, a...))
 }
 
 // Error print error msg
 func Error(format string, args ...interface{}) {
 	errorCounter++
-	error(strconv.Itoa(errorCounter)+" "+format+"\n", args...)
-	//logger.Error(args...)
+	logger.Error(red(strconv.Itoa(errorCounter)+" "+format, args...))
 }
 
 // Info print info msg
 func Info(format string, a ...interface{}) {
-	info(format, a...)
+	logger.Info(cyan(format, a...))
 }
 
 // Debug print debug msg
 func Debug(format string, a ...interface{}) {
-	debug(format, a...)
+	logger.Debug(white(format, a...))
+}
+
+func GetErrorsPrinted() int {
+	return errorCounter
 }

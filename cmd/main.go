@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/jesusnoseq/jsonschematester/clog"
+	"github.com/jesusnoseq/JSON-schema-tester/clog"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/xeipuuv/gojsonschema"
 )
@@ -18,6 +18,14 @@ type PathConfig struct {
 	SchemasDir  string `envconfig:"SCHEMA_DIR" default:"testdata/schemas"`
 	SchemasURL  string `envconfig:"SCHEMA_URL" default:"/"`
 	ExamplesDir string `envconfig:"EXAMPLE_DIR" default:"testdata/examples"`
+	ExamplesURL string `envconfig:"EXAMPLE_URL" default:"/examples/"`
+	ServerAddr  string `envconfig:"SERVER_ADDR" default:":8080"`
+}
+
+type PathConfig struct {
+	SchemasDir  string `envconfig:"SCHEMA_DIR" default:"schemas/schemas"`
+	SchemasURL  string `envconfig:"SCHEMA_URL" default:"/"`
+	ExamplesDir string `envconfig:"EXAMPLE_DIR" default:"schemas/examples"`
 	ExamplesURL string `envconfig:"EXAMPLE_URL" default:"/examples/"`
 	ServerAddr  string `envconfig:"SERVER_ADDR" default:":8080"`
 }
@@ -40,13 +48,14 @@ func main() {
 	for i := 0; i < len(schemas); i++ {
 		if contains(examples, schemas[i]) {
 			toValidate = append(toValidate, schemas[i])
+			clog.Success(" Schema have its example %s", schemas[i])
 		} else {
 			clog.Error("Schema %s does not have an example", schemas[i])
 		}
 	}
 	for i := 0; i < len(examples); i++ {
 		if contains(schemas, examples[i]) {
-			// everything ok
+			clog.Success("Example have its schema %s", schemas[i])
 		} else {
 			clog.Error("Example %s does not have a schema", examples[i])
 		}
@@ -84,54 +93,6 @@ func main() {
 	}
 
 }
-
-//loader := gojsonschema.NewReferenceLoader("http://127.0.0.1:8080/")
-////loader.LoadJSON()
-/*sl := gojsonschema.NewSchemaLoader()
-sl.Validate = true
-errSchema := sl.AddSchemas(gojsonschema.NewStringLoader(`{
-     $id" : "http://some_host.com/invalid.json",
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "multipleOf" : true
-}`))
-if errSchema != nil {
-	clog.Error("The schema is not valid. see error : \n %s", errSchema.Error())
-}*/
-//sl.Compile()
-
-/*schemaLoader := gojsonschema.NewReferenceLoader("file:///home/me/schema.json")
-documentLoader := gojsonschema.NewReferenceLoader("file:///home/me/document.json")
-
-result, err := gojsonschema.Validate(schemaLoader, documentLoader)
-if err != nil {
-	panic(err.Error())
-}
-
-if result.Valid() {
-	fmt.Printf("The document is valid\n")
-} else {
-	fmt.Printf("The document is not valid. see errors :\n")
-	for _, desc := range result.Errors() {
-		fmt.Printf("- %s\n", desc)
-	}
-}
-*/
-/*
-	fsEx := http.FileServer(http.Dir(config.ExamplesDir))
-	http.Handle(config.ExamplesURL, http.StripPrefix(config.ExamplesURL, fsEx))
-
-	fsSc := http.FileServer(http.Dir(config.SchemasDir))
-	http.Handle(config.SchemasURL, http.StripPrefix(config.SchemasURL, fsSc))
-
-	http.ListenAndServe(config.ServerAddr, nil)*/
-
-/*
-gojsonschema.NewStringLoader(`{
-	     $id" : "http://some_host.com/invalid.json",
-	    "$schema": "http://json-schema.org/draft-07/schema#",
-	    "multipleOf" : true
-	}`)
-*/
 func parseConfig() PathConfig {
 	var r PathConfig
 	err := envconfig.Process("", &r)
@@ -176,11 +137,8 @@ func scanFolder(rootPath string) []string {
 }
 
 func contains(a []string, x string) bool {
-	return sort.SearchStrings(a, x) != len(a)
-}
-
-func pathToURL(path string) string {
-	return ""
+	index := sort.SearchStrings(a, x)
+	return index < len(a) && a[index] == x
 }
 
 func filterPaths(paths []string, filter string) {

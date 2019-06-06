@@ -45,7 +45,7 @@ func Check(config config.PathConfig) int {
 		loader := gojsonschema.NewReferenceLoader(schemaURL)
 		errSchema := sl.AddSchemas(loader)
 		if errSchema != nil {
-			clog.Error("Schema %s is not valid. see error : \n %s", schemas[i], errSchema.Error())
+			clog.Error("Schema %s is not valid. see error: \n %s", schemas[i], errSchema.Error())
 			continue
 		} else {
 			clog.Success("Valid %s", schemas[i])

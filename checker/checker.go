@@ -56,7 +56,7 @@ func Check(config config.PathConfig) int {
 		documentLoader := gojsonschema.NewReferenceLoader(documentURL)
 		result, err := gojsonschema.Validate(loader, documentLoader)
 		if err != nil {
-			clog.Error("Error testing %s schema; %s", schemas[i], err.Error())
+			clog.Error("Error testing example %s against schema; %s", schemas[i], err.Error())
 		} else {
 			if result.Valid() {
 				clog.Success("Valid and tested %s", schemas[i])

@@ -32,7 +32,7 @@ func Check(config config.PathConfig) int {
 	}
 	for i := 0; i < len(examples); i++ {
 		if contains(schemas, examples[i]) {
-			clog.Success("Example have its schema %s", schemas[i])
+			clog.Success("Example have its schema %s", examples[i])
 		} else {
 			clog.Error("Example %s does not have a schema", examples[i])
 		}

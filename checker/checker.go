@@ -11,6 +11,8 @@ import (
 )
 
 func Check(config config.PathConfig) int {
+	// Temporally removed because it does not validate "2017-07-04T13:23:55" value as date-time format
+	gojsonschema.FormatCheckers.Remove("date-time")
 
 	schemas := scanFolder(config.SchemasDir)
 	filterPaths(schemas, config.SchemasDir)

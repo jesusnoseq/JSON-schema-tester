@@ -6,12 +6,17 @@ import (
 	"github.com/jesusnoseq/JSON-schema-tester/config"
 	"net/http"
 	"os"
+	"time"
 )
 
 func main() {
 	config := config.Parse()
 	clog.Info("Initiating tester with configuration: %+v", config)
+
 	go initWebServer(config)
+	// wait web server to be ready
+	time.Sleep(2 * time.Second)
+
 	nErrors := checker.Check(config)
 	os.Exit(nErrors)
 }
@@ -26,11 +31,10 @@ func initWebServer(conf config.PathConfig) {
 	http.Handle(conf.SchemasURL, http.StripPrefix(conf.SchemasURL, fsSc))
 
 	err := srv.ListenAndServe()
+
 	if err == http.ErrServerClosed {
 		clog.Error("server on %s is closed", conf.ServerAddr)
 	} else if err == http.ErrServerClosed {
 		clog.Error("server error %s on %s", conf.ServerAddr, err.Error())
-	} else {
-		clog.Info("server listening on %s...", conf.ServerAddr)
 	}
 }

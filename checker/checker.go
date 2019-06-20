@@ -11,6 +11,7 @@ import (
 )
 
 func Check(config config.PathConfig) int {
+	clog.Info("date-time format checker has been removed due to inconsistencies between json schema validators")
 	// Temporally removed because it does not validate "2017-07-04T13:23:55" value as date-time format
 	gojsonschema.FormatCheckers.Remove("date-time")
 
@@ -20,13 +21,11 @@ func Check(config config.PathConfig) int {
 	examples := scanFolder(config.ExamplesDir)
 	filterPaths(examples, config.ExamplesDir)
 	sort.Strings(examples)
-	var toValidate []string
 
 	clog.Info("There are %d schemas and %d examples", len(schemas), len(examples))
 
 	for i := 0; i < len(schemas); i++ {
 		if contains(examples, schemas[i]) {
-			toValidate = append(toValidate, schemas[i])
 			clog.Success(" Schema have its example %s", schemas[i])
 		} else {
 			clog.Error("Schema %s does not have an example", schemas[i])
@@ -42,17 +41,17 @@ func Check(config config.PathConfig) int {
 	sl := gojsonschema.NewSchemaLoader()
 	sl.Validate = true
 	for i := 0; i < len(schemas); i++ {
-		schemaURL := "http://127.0.0.1:8080/" + config.SchemasURL + schemas[i]
-		documentURL := "http://127.0.0.1:8080/" + config.ExamplesURL + schemas[i]
+		schemaURL := "http://127.0.0.1:8080" + config.SchemasURL + schemas[i]
+		documentURL := "http://127.0.0.1:8080" + config.ExamplesURL + schemas[i]
 		loader := gojsonschema.NewReferenceLoader(schemaURL)
 		errSchema := sl.AddSchemas(loader)
 		if errSchema != nil {
 			clog.Error("Schema %s is not valid. see error: \n %s", schemas[i], errSchema.Error())
 			continue
 		} else {
-			clog.Success("Valid %s", schemas[i])
+			clog.Success("Valid %s", schemaURL)
 		}
-		if !contains(toValidate, schemas[i]) {
+		if !contains(examples, schemas[i]) {
 			continue
 		}
 		documentLoader := gojsonschema.NewReferenceLoader(documentURL)
@@ -61,7 +60,7 @@ func Check(config config.PathConfig) int {
 			clog.Error("Error testing example %s against schema; %s", schemas[i], err.Error())
 		} else {
 			if result.Valid() {
-				clog.Success("Valid and tested %s", schemas[i])
+				clog.Success("Valid and tested %s", documentURL)
 			} else {
 				clog.Error("The document %s is not valid. see errors:", schemas[i])
 				for _, desc := range result.Errors() {

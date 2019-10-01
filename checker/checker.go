@@ -48,9 +48,11 @@ func Check(config config.PathConfig) int {
 		if errSchema != nil {
 			clog.Error("Schema %s is not valid. see error: \n %s", schemas[i], errSchema.Error())
 			continue
-		} else {
-			clog.Success("Valid %s", schemaURL)
 		}
+		checkAdditionalPropertiesFalse(schemas[i], loader)
+
+		clog.Success("Valid %s", schemaURL)
+
 		if !contains(examples, schemas[i]) {
 			continue
 		}
@@ -70,6 +72,28 @@ func Check(config config.PathConfig) int {
 		}
 	}
 	return clog.GetErrorsPrinted()
+}
+
+func checkAdditionalPropertiesFalse(schema string, l gojsonschema.JSONLoader) {
+	i, err := l.LoadJSON()
+	if err != nil {
+		clog.Error("Error loading schema " + schema)
+	}
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		clog.Error("Error parsing schema " + schema)
+		return
+	}
+	ap, ok := m["additionalProperties"]
+	if !ok {
+		clog.Warn("Schema " + schema + " allow unknown additional properties, add property \"additionalProperties\": false")
+		return
+	}
+
+	if app, ok := ap.(bool); !ok || app {
+		clog.Warn("Schema " + schema + " allow unknown additional properties, change property additionalProperties to false")
+		return
+	}
 }
 
 func scanFolder(rootPath string) []string {

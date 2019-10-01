@@ -10,14 +10,15 @@ import (
 )
 
 func main() {
-	config := config.Parse()
-	clog.Info("Initiating tester with configuration: %+v", config)
+	conf := config.Parse()
+	clog.InitLogger(conf)
+	clog.Info("Initiating tester with configuration: %+v", conf)
 
-	go initWebServer(config)
+	go initWebServer(conf)
 	// wait web server to be ready
 	time.Sleep(2 * time.Second)
 
-	nErrors := checker.Check(config)
+	nErrors := checker.Check(conf)
 	os.Exit(nErrors)
 }
 

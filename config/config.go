@@ -6,11 +6,13 @@ import (
 )
 
 type PathConfig struct {
-	SchemasDir  string `envconfig:"SCHEMA_DIR" default:"schemas/schemas"`
-	SchemasURL  string `envconfig:"SCHEMA_URL" default:"/"`
-	ExamplesDir string `envconfig:"EXAMPLE_DIR" default:"schemas/examples"`
-	ExamplesURL string `envconfig:"EXAMPLE_URL" default:"/examples/"`
-	ServerAddr  string `envconfig:"SERVER_ADDR" default:":8080"`
+	SchemasDir   string `envconfig:"SCHEMA_DIR" default:"schemas/schemas"`
+	SchemasURL   string `envconfig:"SCHEMA_URL" default:"/"`
+	ExamplesDir  string `envconfig:"EXAMPLE_DIR" default:"schemas/examples"`
+	ExamplesURL  string `envconfig:"EXAMPLE_URL" default:"/examples/"`
+	ServerAddr   string `envconfig:"SERVER_ADDR" default:":8080"`
+	WarnsAllowed int    `envconfig:"WARNS_ALLOWED" default:"0"`
+	LogLevel     string `envconfig:"LOG_LEVEL" default:"INFO"`
 }
 
 func Parse() PathConfig {
